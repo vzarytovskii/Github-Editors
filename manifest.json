@@ -1,19 +1,20 @@
 {
-   "browser_action": {
+   "action": {
       "default_icon": "img/logo.png",
-      "default_title": "Github-Editors"
+      "default_title": "Github Editors"
    },"content_scripts": [ {
       "js": [ "main.js" ],
       "matches": [ "https://github.com/*"]
    } ],
    "description": "Adds VSCode Insiders and VSCode.dev buttons on repos' homepage.",
-   "manifest_version": 2,
-   "name": "Github-Editors",
+   "manifest_version": 3,
+   "name": "Github Editor Buttons",
    "short_name": "GHE",
-   "version": "0.2.0",
-   "web_accessible_resources": [
-      "img/*", "img/icons/*"
-   ],
+   "version": "0.0.1",
+   "web_accessible_resources": [{
+      "resources": ["img/*", "img/icons/*"],
+      "matches": ["https://github.com/*"]
+   }],
    "icons": {
       "128": "img/logo.png",
       "16": "img/logo.png",

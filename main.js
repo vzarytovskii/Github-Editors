@@ -10,33 +10,34 @@ const ICONS = {
   remote: getFullIconURL("remote.png"),
 };
 
-const getRepoURL = () => {
+const getCurrentUrl = () => {
   return window.location.href;
 };
 
 const isInPr = () => {
-  return window.location.href.includes("/pull/");
-};
-
-const getCloneURL = () => {
-  const currentRepo = getRepoURL();
-  return `vscode-insiders://vscode.git/clone?url=${currentRepo}.git`;
+  return getCurrentUrl().includes("/pull/");
 };
 
 const getRemoteUrl = () => {
-  const currentUrl = getRepoURL();
+  const currentUrl = getCurrentUrl();
   return `vscode-insiders://ms-vscode.remote-repositories/open?url=${currentUrl}`;
 };
 
 const getDevURL = () => {
-  const currentRepo = getRepoURL();
+  const currentRepo = getCurrentUrl();
   return currentRepo.replace("github.com", "github.dev");
 };
 
 const getNavbarLastElementChild = () => {
-  const navbar = document.querySelector(".file-navigation");
-  if (!navbar) return null;
-  return navbar.lastElementChild;
+  if (!isInPr()) {
+    const navbar = document.querySelector(".file-navigation");
+    if (!navbar) return null;
+    return navbar.lastElementChild;
+  } else {
+    const header_actions = document.querySelector(".gh-header-actions");
+    if (!header_actions) return null;
+    return header_actions;
+  }
 };
 
 const isAlreadyAdded = () => {
@@ -48,15 +49,10 @@ const isAlreadyAdded = () => {
 const getCodeButton = () => {
   const lastNavbarChild = getNavbarLastElementChild();
   if (!lastNavbarChild) return null;
-  if (
-    !lastNavbarChild.lastElementChild || // check if there is child
-    lastNavbarChild.lastElementChild.tagName !== "GET-REPO" // check if we are @ repo homepage
-  )
-    return null;
   return lastNavbarChild;
 };
 
-const generateButton = (flatSide, image, link, tooltipText) => {
+const generateButton = ({flatSide, icon, url, title}) => {
   const linkIcon = document.createElement("img");
   const linkElement = document.createElement("a");
 
@@ -70,31 +66,15 @@ const generateButton = (flatSide, image, link, tooltipText) => {
     "tooltipped-s"
   );
 
-  linkIcon.src = image;
+  linkIcon.src = icon;
   linkIcon.width = "16";
   linkIcon.height = "16";
 
   linkElement.append(linkIcon);
-  linkElement.href = link;
-  linkElement.setAttribute("aria-label", tooltipText);
+  linkElement.href = url;
+  linkElement.setAttribute("aria-label", title);
 
   return linkElement;
-};
-
-const generateJetbrainsButtons = () => {
-  const jetbrainsButtons = [];
-  const jetbrainsIDELabels = getJetbrainsIDELabels();
-  for (let ideLabel of jetbrainsIDELabels) {
-    const currentTool = JETBRAINS_TOOLS[ideLabel];
-    const jetbrainsButton = generateButton(
-      "all",
-      currentTool.icon,
-      getJetbrainsURL(currentTool.tag),
-      `Clone in ${currentTool.name}`
-    );
-    jetbrainsButtons.push(jetbrainsButton);
-  }
-  return jetbrainsButtons;
 };
 
 const generateButtonsGroup = () => {
@@ -102,28 +82,12 @@ const generateButtonsGroup = () => {
   buttonsGroup.classList.add("mr-2", "d-inline-flex", "BtnGroup");
   buttonsGroup.id = "ghe-buttons";
 
-  const vscodeButton = generateButton(
-    "right",
-    ICONS.vscode,
-    getCloneURL(),
-    "Clone in VSCode"
-  );
-  const githubdevButton = generateButton(
-    "left",
-    ICONS.github,
-    getDevURL(),
-    "Open in GitHub.dev"
-  );
-  const remoteButton = generateButton(
-    "left",
-    ICONS.remote,
-    getRemoteUrl(),
-    "Open in VSCode (remote repository)"
-  );
+  const buttons = [
+    { flatSide: "right", icon: ICONS.github, url: getDevURL(), title: "Open in GitHub.dev" },
+    { flatSide: "left", icon: ICONS.remote, url: getRemoteUrl(), title: "Open in VSCode (remote repository)" }
+  ]
 
-  buttonsGroup.append(vscodeButton);
-  buttonsGroup.append(githubdevButton);
-  buttonsGroup.append(remoteButton);
+  buttons.map(generateButton).map(button => buttonsGroup.append(button));
 
   return buttonsGroup;
 };
