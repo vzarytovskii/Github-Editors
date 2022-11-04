@@ -7,10 +7,15 @@ const getFullIconURL = (iconName) => {
 const ICONS = {
   github: getFullIconURL("github-icon.png"),
   vscode: getFullIconURL("vscode-icon.png"),
+  remote: getFullIconURL("remote.png"),
 };
 
 const getRepoURL = () => {
   return window.location.href;
+};
+
+const isInPr = () => {
+  return window.location.href.includes("/pull/");
 };
 
 const getCloneURL = () => {
@@ -18,13 +23,12 @@ const getCloneURL = () => {
   return `vscode-insiders://vscode.git/clone?url=${currentRepo}.git`;
 };
 
-const getPRUrl = () => {
-  const currentRepo = getRepoURL();
-  return `${currentRepo}/pulls`;
+const getRemoteUrl = () => {
+  const currentUrl = getRepoURL();
+  return `vscode-insiders://ms-vscode.remote-repositories/open?url=${currentUrl}`;
 };
 
-
-const getViewURL = () => {
+const getDevURL = () => {
   const currentRepo = getRepoURL();
   return currentRepo.replace("github.com", "github.dev");
 };
@@ -93,7 +97,7 @@ const generateJetbrainsButtons = () => {
   return jetbrainsButtons;
 };
 
-const generateButtonsGroup = (showJbButtons) => {
+const generateButtonsGroup = () => {
   const buttonsGroup = document.createElement("div");
   buttonsGroup.classList.add("mr-2", "d-inline-flex", "BtnGroup");
   buttonsGroup.id = "ghe-buttons";
@@ -107,12 +111,19 @@ const generateButtonsGroup = (showJbButtons) => {
   const githubdevButton = generateButton(
     "left",
     ICONS.github,
-    getViewURL(),
+    getDevURL(),
     "Open in GitHub.dev"
+  );
+  const remoteButton = generateButton(
+    "left",
+    ICONS.remote,
+    getRemoteUrl(),
+    "Open in VSCode (remote repository)"
   );
 
   buttonsGroup.append(vscodeButton);
   buttonsGroup.append(githubdevButton);
+  buttonsGroup.append(remoteButton);
 
   return buttonsGroup;
 };
