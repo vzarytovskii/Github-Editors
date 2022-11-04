@@ -1,61 +1,32 @@
-﻿const getRepoURL = () => {
+﻿const ICONS_PATH = "/img/icons/";
+
+const getFullIconURL = (iconName) => {
+  return chrome.runtime.getURL(ICONS_PATH + iconName);
+};
+
+const ICONS = {
+  github: getFullIconURL("github-icon.png"),
+  vscode: getFullIconURL("vscode-icon.png"),
+};
+
+const getRepoURL = () => {
   return window.location.href;
-};
-
-const getRepoLanguages = () => {
-  const progressBar = document.querySelector(
-    ".Progress:not(.progress-pjax-loader)"
-  );
-  if (!progressBar) return DEFAULT_LANGUAGE;
-  const languages = Array.from(progressBar.children).map(
-    (elem) => elem.ariaLabel
-  );
-
-  const filteredLanguages = languages.filter((label) => {
-    const languagePercentage = parseFloat(label.match(LANGUAGE_REGEX)[2]);
-    return languagePercentage >= MINIMUM_PERCENTAGE;
-  });
-  return filteredLanguages.map((lang) => lang.replace(LANGUAGE_REGEX, "$1"));
-};
-
-const getCorrespondingIDE = (language) => {
-  const mainLanguage = language.toLowerCase();
-  if (!Object.keys(IDE_LANGUAGES).includes(mainLanguage))
-    return IDE_LANGUAGES[DEFAULT_LANGUAGE];
-  return IDE_LANGUAGES[mainLanguage];
-};
-
-const getJetbrainsIDELabels = () => {
-  const repoLanguages = getRepoLanguages();
-  const jetbrainsIDELabels = new Set();
-  for (let language of repoLanguages) {
-    const correspondingIde = getCorrespondingIDE(language);
-    correspondingIde.forEach((ide) => jetbrainsIDELabels.add(ide));
-  }
-  return jetbrainsIDELabels;
-};
-
-const getJetbrainsURL = (tag) => {
-  const currentRepo = getRepoURL();
-  return JETBRAINS_CLONE_URL.replace("{tag}", tag).replace(
-    "{url}",
-    `${currentRepo}.git`
-  );
 };
 
 const getCloneURL = () => {
   const currentRepo = getRepoURL();
-  return `vscode://vscode.git/clone?url=${currentRepo}.git`;
+  return `vscode-insiders://vscode.git/clone?url=${currentRepo}.git`;
 };
 
-const getCodeSandboxURL = () => {
+const getPRUrl = () => {
   const currentRepo = getRepoURL();
-  return currentRepo.replace("github", "githubbox");
+  return `${currentRepo}/pulls`;
 };
+
 
 const getViewURL = () => {
   const currentRepo = getRepoURL();
-  return currentRepo.replace("github", "github1s");
+  return currentRepo.replace("github.com", "github.dev");
 };
 
 const getNavbarLastElementChild = () => {
@@ -133,30 +104,15 @@ const generateButtonsGroup = (showJbButtons) => {
     getCloneURL(),
     "Clone in VSCode"
   );
-  const github1sButton = generateButton(
+  const githubdevButton = generateButton(
     "left",
     ICONS.github,
     getViewURL(),
-    "Open in GitHub1s"
-  );
-  const codesandboxButton = generateButton(
-    "all",
-    ICONS.codesandbox,
-    getCodeSandboxURL(),
-    "Open in CodeSandbox"
+    "Open in GitHub.dev"
   );
 
   buttonsGroup.append(vscodeButton);
-
-  if (showJbButtons) {
-    const jetbrainsButtons = generateJetbrainsButtons();
-    jetbrainsButtons.forEach((jetbrainsButton) =>
-      buttonsGroup.append(jetbrainsButton)
-    );
-  }
-
-  buttonsGroup.append(codesandboxButton);
-  buttonsGroup.append(github1sButton);
+  buttonsGroup.append(githubdevButton);
 
   return buttonsGroup;
 };
@@ -164,8 +120,7 @@ const generateButtonsGroup = (showJbButtons) => {
 const insertButtons = async () => {
   const button = getCodeButton();
   if (button && !isAlreadyAdded()) {
-    const showJbButtons = await showJetbrainsButtons();
-    const buttonsGroup = generateButtonsGroup(showJbButtons);
+    const buttonsGroup = generateButtonsGroup();
     button.prepend(buttonsGroup);
   }
 };

@@ -1,13 +1,12 @@
 {
    "browser_action": {
       "default_icon": "img/logo.png",
-      "default_title": "Github-Editors",
-      "default_popup": "./options/options.html"
+      "default_title": "Github-Editors"
    },"content_scripts": [ {
-      "js": [ "constants.js", "main.js" ],
+      "js": [ "main.js" ],
       "matches": [ "https://github.com/*"]
    } ],
-   "description": "Adds useful buttons on repos' homepage like VSCode and Jetbrains' Suite cloning; GitHub1s and Codesandbox viewer.",
+   "description": "Adds VSCode Insiders and VSCode.dev buttons on repos' homepage.",
    "manifest_version": 2,
    "name": "Github-Editors",
    "short_name": "GHE",
@@ -19,10 +18,6 @@
       "128": "img/logo.png",
       "16": "img/logo.png",
       "48": "img/logo.png"
-   },
-   "options_ui": {
-      "page": "/options/options.html",
-      "open_in_tab": false
    },
    "permissions": [
       "storage"
